@@ -1,47 +1,103 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <div>
+        <login-view v-if="view_resolver == 'login-view'" @go_join="go_join" @go_find_email="go_find_email"></login-view>
+        <welcome-view v-else-if="view_resolver == 'welcome-view'" :user_info="user_info" :config_data="config_data"
+            @user_logout="user_logout" @go_profile_edit="go_profile_edit"></welcome-view>
+        <join-view v-else-if="view_resolver == 'join-view'" @go_login="go_login" :user_info="user_info"></join-view>
+        <find-email-view v-else-if="view_resolver == 'find-email-view'" @go_login="go_login"
+            @go_join="go_join"></find-email-view>
+        <profile-edit-view v-else-if="view_resolver == 'profile-edit-view'" :user_info="user_info" @go_welcome="go_welcome" @new_profile_image="new_profile_image"></profile-edit-view>
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script>
+import WelcomeView from './views/WelcomeView.vue';
+import LoginView from './views/LoginView.vue';
+import JoinView from './views/JoinView.vue';
+import FindEmailView from './views/FindEmailView.vue';
+import ProfileEditView from './views/ProfileEditView.vue';
+import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+
+
+export default {
+    components: {
+        LoginView,
+        WelcomeView,
+        JoinView,
+        FindEmailView,
+        ProfileEditView
+    },
+    data() {
+        return {
+            view_resolver: undefined,
+            user_info: undefined,
+        }
+    },
+    methods: {
+        user_logout() {
+            const auth = getAuth();
+            signOut(auth).then(() => {
+                // Sign-out successful.
+            }).catch((error) => {
+                // An error happened.
+            });
+        },
+        async load_config_file() {        
+            const default_data = {
+                note: 'on',
+                tray_icon: 'on',
+                background_color: '#FFFAF6',
+                encoding_type: 'utf-8',
+                scrollbar: '#babd34'
+            };
+            const cd = localStorage.getItem("config_data")
+            this.config_data = (cd == null) ? default_data : cd;
+        },
+        go_join() {
+            this.view_resolver = 'join-view'
+        },
+        go_login() {
+            this.view_resolver = 'login-view'
+        },
+        minimize_window() {
+            window.electronAPI.minimizeWindow();
+        },
+        close_window() { 
+            window.electronAPI.closeWindow();
+        },
+        go_find_email() {
+            this.view_resolver = 'find-email-view'
+        },
+        go_profile_edit() {
+            this.view_resolver = 'profile-edit-view'
+        },
+        go_welcome() {
+            this.view_resolver = 'welcome-view'
+        },
+        new_profile_image(ref) {
+            console.log("gggg");
+            // this.user_info.photoURL = 'https://firebasestorage.googleapis.com/v0/b/' + import.meta.env.VITE_FIREBASE_STOARGE_BUCKET + '/o/' + this.user_info.uid + '?alt=media&token=&t=' +Date.now()
+            this.user_info.photoURL = ref;
+        }
+    },
+    created() {
+        this.load_config_file();
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                this.user_info = {...getAuth().currentUser};
+                // setTimeout(() => {
+                //     if (getAuth().currentUser.photoURL != null) this.user_info.photoURL = getAuth().currentUser.photoURL;
+                // }, 1000);
+                this.view_resolver = "welcome-view";
+            } else {
+                this.view_resolver = "login-view";
+            }
+        });
+    }
 }
+</script>
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<style scoped>.title_bar_menu:hover {
+    background-color: rgba(0, 0, 0, 0.13);
+}</style>

@@ -1,35 +1,43 @@
-@import './base.css';
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+html * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
+.flex_center {
     display: flex;
-    place-items: center;
-  }
+    justify-content: center;
+    align-items: center;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.hover_dark:hover {
+    filter: brightness(90%);
+}
+
+.hover_pointer:hover {
+    cursor: pointer;
+}
+
+.hover_underline:hover {
+    text-decoration: underline;
+}
+
+.border_dashed {
+    border: 2px dashed;
+}
+
+textarea:focus {
+    outline: none;
+}
+
+.display_none {
+    display: none;
+}
+
+.display_block {
+    display: block;
+}
+
+input:focus {
+    outline: none;
 }
